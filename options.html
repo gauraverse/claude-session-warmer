@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Claude Session Warmer · Settings</title>
+  <link rel="stylesheet" href="options.css" />
+</head>
+<body>
+  <main>
+    <header class="page-header">
+      <div class="brand">
+        <div class="brand-mark">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+            <path d="M12 6v6l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div>
+          <h1>Session Warmer</h1>
+          <p class="sub">Configure how the extension auto-starts your next 5-hour session.</p>
+        </div>
+      </div>
+    </header>
+
+    <section class="card">
+      <h2>General</h2>
+      <label class="row">
+        <div>
+          <span class="row-title">Enabled</span>
+          <p class="row-hint">Master switch for auto-warmups.</p>
+        </div>
+        <input type="checkbox" id="enabled" />
+      </label>
+      <label class="row">
+        <div>
+          <span class="row-title">Desktop notifications</span>
+          <p class="row-hint">Get notified when a warmup fires or fails.</p>
+        </div>
+        <input type="checkbox" id="notifications" />
+      </label>
+      <label class="row">
+        <div>
+          <span class="row-title">Warmup message</span>
+          <p class="row-hint">The text sent to start a new session.</p>
+        </div>
+        <input type="text" id="message" placeholder="hi" />
+      </label>
+      <label class="row">
+        <div>
+          <span class="row-title">Preferred model</span>
+          <p class="row-hint">Best-effort label. For guaranteed Haiku, set it as your default model in Claude.</p>
+        </div>
+        <input type="text" id="model" placeholder="claude-haiku" />
+      </label>
+    </section>
+
+    <section class="card">
+      <h2>Quiet hours</h2>
+      <label class="row">
+        <div>
+          <span class="row-title">Skip warmups during quiet hours</span>
+          <p class="row-hint">Leave OFF if you want a fresh window ready when you wake up.</p>
+        </div>
+        <input type="checkbox" id="quietHoursEnabled" />
+      </label>
+      <div class="row">
+        <span class="row-title">Window</span>
+        <div class="time-group">
+          <input type="time" id="quietStart" />
+          <span class="time-sep">to</span>
+          <input type="time" id="quietEnd" />
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Advanced — DOM selectors</h2>
+      <p class="row-hint card-hint">
+        Edit only if Claude's UI changes and the extension stops working. Right-click the chat input on claude.ai → Inspect → copy a CSS selector.
+      </p>
+      <label class="row">
+        <span class="row-title">Input area selector</span>
+        <input type="text" id="sel-input" />
+      </label>
+      <label class="row">
+        <span class="row-title">Send button selector</span>
+        <input type="text" id="sel-send" />
+      </label>
+      <label class="row">
+        <span class="row-title">Model selector (reserved)</span>
+        <input type="text" id="sel-model" />
+      </label>
+    </section>
+
+    <div class="action-bar">
+      <button id="save" class="btn btn-primary">Save</button>
+      <button id="reset" class="btn btn-ghost">Restore defaults</button>
+      <span class="status" id="save-status"></span>
+    </div>
+
+    <footer class="page-footer">
+      <div class="credit">
+        Made with <span class="heart">❤</span> by
+        <a href="https://tools.gauraverse.com/" target="_blank" rel="noopener">Gaurav</a>
+      </div>
+      <div class="footer-divider"></div>
+      <div class="footer-stats">
+        <div class="stat-block">
+          <span class="bolt">⚡</span>
+          <span class="count" id="total-warmups">0</span>
+          <span class="meta">TOTAL WARMUPS</span>
+        </div>
+        <div class="version-block">
+          <span id="version-tag">v1.3</span>
+          <span class="bullet">•</span>
+          <span>LOCAL &amp; PRIVATE</span>
+        </div>
+      </div>
+    </footer>
+  </main>
+  <script src="options.js"></script>
+</body>
+</html>

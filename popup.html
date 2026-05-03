@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Claude Session Warmer</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <header class="app-header">
+    <div class="brand">
+      <div class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+          <path d="M12 6v6l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <h1>Session Warmer</h1>
+        <p class="brand-sub">for Claude</p>
+      </div>
+    </div>
+  </header>
+
+  <section class="card">
+    <div class="status-row">
+      <div class="status-label">
+        <span class="dot" id="dot-extension"></span>
+        <span>Extension</span>
+      </div>
+      <span class="status-value" id="status-enabled">—</span>
+    </div>
+    <div class="status-row">
+      <div class="status-label">
+        <span class="dot" id="dot-session"></span>
+        <span>Session</span>
+      </div>
+      <span class="status-value" id="status-session">—</span>
+    </div>
+    <div class="status-row">
+      <div class="status-label">
+        <svg class="row-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/>
+          <path d="M12 7v5l3 2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+        <span>Next reset</span>
+      </div>
+      <span class="status-value mono" id="status-reset">—</span>
+    </div>
+    <div class="status-row">
+      <div class="status-label">
+        <svg class="row-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M13 3 4 14h7l-1 7 9-11h-7l1-7z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+        </svg>
+        <span>Last warmup</span>
+      </div>
+      <span class="status-value" id="status-warmup">—</span>
+    </div>
+  </section>
+
+  <div class="actions">
+    <button id="toggle-btn" class="btn btn-primary">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="6" y="5" width="4" height="14" rx="1" fill="currentColor"/>
+        <rect x="14" y="5" width="4" height="14" rx="1" fill="currentColor"/>
+      </svg>
+      <span id="toggle-label">Pause</span>
+    </button>
+    <div class="btn-row">
+      <button id="warmup-btn" class="btn btn-ghost">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M13 3 4 14h7l-1 7 9-11h-7l1-7z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+        </svg>
+        Warm up
+      </button>
+      <button id="refresh-btn" class="btn btn-ghost">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M3 12a9 9 0 0 1 15-6.7L21 8M21 3v5h-5M21 12a9 9 0 0 1-15 6.7L3 16M3 21v-5h5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Refresh
+      </button>
+    </div>
+    <div class="quick-links">
+      <a href="#" id="open-options" class="quick-link">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.6"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.06a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Settings
+      </a>
+      <span class="quick-link-sep">·</span>
+      <a href="https://claude.ai/settings/usage" target="_blank" rel="noopener" class="quick-link">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M14 3h7v7M21 3l-9 9M10 5H6a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Usage page
+      </a>
+    </div>
+  </div>
+
+  <footer class="app-footer">
+    <div class="credit">
+      Made with <span class="heart">❤</span> by
+      <a href="https://tools.gauraverse.com/" target="_blank" rel="noopener" id="credit-link">Gaurav</a>
+    </div>
+    <div class="footer-divider"></div>
+    <div class="footer-stats">
+      <div class="stat-block">
+        <span class="bolt">⚡</span>
+        <span class="count" id="total-warmups">0</span>
+        <span class="meta">TOTAL WARMUPS</span>
+      </div>
+      <div class="version-block">
+        <span id="version-tag">v1.3</span>
+        <span class="bullet">•</span>
+        <span>LOCAL &amp; PRIVATE</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="popup.js"></script>
+</body>
+</html>
