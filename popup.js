@@ -1,8 +1,9 @@
-// popup.js v1.3 — drives the redesigned popup UI
+// popup.js v1.5.7
+//   v1.5.7: Recent activity section removed from popup.
+//           Diagnostic logs are still available on the Settings page.
 
 const $ = (id) => document.getElementById(id);
 
-// Render the manifest version into the footer (so v1.3 → v1.4 → … updates auto)
 try {
   const v = chrome.runtime.getManifest().version;
   $('version-tag').textContent = 'v' + v;
@@ -16,11 +17,9 @@ async function refresh() {
   ]);
   const enabled = sync.settings?.enabled ?? true;
 
-  // ── Extension status ─────────────────────────────────────────────────
   $('status-enabled').textContent = enabled ? 'Active' : 'Paused';
   setDot('dot-extension', enabled ? 'is-active' : 'is-warning');
 
-  // ── Session status ───────────────────────────────────────────────────
   const sessionMap = {
     active:       { label: 'Running',           dot: 'is-active'  },
     blank:        { label: 'No session',        dot: 'is-warning' },
@@ -31,22 +30,16 @@ async function refresh() {
   $('status-session').textContent = session.label;
   setDot('dot-session', session.dot);
 
-  // Make the "Logged out" row clickable to /login
-  const sessVal = $('status-session');
-  sessVal.classList.toggle('clickable', local.sessionState === 'logged-out');
+  $('status-session').classList.toggle('clickable', local.sessionState === 'logged-out');
 
-  // ── Next reset countdown ─────────────────────────────────────────────
   if (local.sessionState === 'active' && local.nextResetTime) {
     $('status-reset').textContent = formatRelative(local.nextResetTime);
   } else if (local.sessionState === 'blank') {
     $('status-reset').textContent = 'Pending warmup…';
-  } else if (local.sessionState === 'logged-out') {
-    $('status-reset').textContent = '—';
   } else {
     $('status-reset').textContent = '—';
   }
 
-  // ── Last warmup ──────────────────────────────────────────────────────
   if (local.lastWarmupTime) {
     const tag = local.lastWarmupResult === 'fail' ? ' (failed)' : '';
     $('status-warmup').textContent = formatPast(local.lastWarmupTime) + tag;
@@ -56,12 +49,9 @@ async function refresh() {
     $('status-warmup').style.color = '';
   }
 
-  // ── Toggle button label & state ──────────────────────────────────────
-  const btn = $('toggle-btn');
   $('toggle-label').textContent = enabled ? 'Pause' : 'Resume';
-  btn.classList.toggle('is-paused', !enabled);
+  $('toggle-btn').classList.toggle('is-paused', !enabled);
 
-  // ── Lifetime warmup count (footer) ───────────────────────────────────
   $('total-warmups').textContent = formatCount(local.totalWarmups || 0);
 }
 
@@ -93,35 +83,37 @@ function formatPast(ts) {
   return `${d}d ago`;
 }
 
-// Locale-aware count formatting (1234 → 1,234)
 function formatCount(n) {
   try { return n.toLocaleString(); } catch { return String(n); }
 }
 
-// ── Event handlers ─────────────────────────────────────────────────────
-
 $('toggle-btn').addEventListener('click', async () => {
   const sync = await chrome.storage.sync.get('settings');
   const settings = sync.settings || {};
-  settings.enabled = !(settings.enabled ?? true);
+  const wasEnabled = settings.enabled ?? true;
+  settings.enabled = !wasEnabled;
   await chrome.storage.sync.set({ settings });
   if (settings.enabled) {
-    chrome.runtime.sendMessage({ type: 'evaluate-now' });
+    chrome.runtime.sendMessage({ type: 'evaluate-now' }, () => { void chrome.runtime.lastError; });
   }
   refresh();
 });
 
 $('warmup-btn').addEventListener('click', () => {
-  chrome.runtime.sendMessage({ type: 'manual-warmup' });
-  // Optimistic UI feedback
+  chrome.runtime.sendMessage({ type: 'manual-warmup' }, () => { void chrome.runtime.lastError; });
   $('warmup-btn').setAttribute('disabled', 'true');
   setTimeout(() => $('warmup-btn').removeAttribute('disabled'), 3000);
+  // Re-poll a few times after a manual warmup so the popup reflects the
+  // updated session state and reset time without needing to close and reopen.
   setTimeout(refresh, 1500);
+  setTimeout(refresh, 4000);
+  setTimeout(refresh, 8000);
 });
 
 $('refresh-btn').addEventListener('click', () => {
-  chrome.runtime.sendMessage({ type: 'manual-refresh-state' });
+  chrome.runtime.sendMessage({ type: 'manual-refresh-state' }, () => { void chrome.runtime.lastError; });
   setTimeout(refresh, 2000);
+  setTimeout(refresh, 5000);
 });
 
 $('status-session').addEventListener('click', async () => {
@@ -136,6 +128,5 @@ $('open-options').addEventListener('click', (e) => {
   chrome.runtime.openOptionsPage();
 });
 
-// Live-refresh the popup while it's open
 refresh();
 setInterval(refresh, 5000);

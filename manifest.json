@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Claude Session Warmer",
-  "version": "1.4.0",
+  "version": "1.5.10",
   "description": "Auto-starts a new Claude session the moment your 5-hour usage window resets, so your sessions stay aligned with your day.",
   "permissions": [
     "storage",

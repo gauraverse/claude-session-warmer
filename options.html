@@ -22,6 +22,16 @@
       </div>
     </header>
 
+    <section class="card warning-card">
+      <h2>Important: terms of service</h2>
+      <p class="row-hint card-hint">
+        This extension automates clicks and keystrokes inside <code>claude.ai</code>. Anthropic's consumer
+        usage policies generally prohibit scripted or automated access to consumer products. Using this
+        extension may put your account at risk of being flagged or terminated. Use it on your own
+        account, at your own discretion. This project is not affiliated with or endorsed by Anthropic.
+      </p>
+    </section>
+
     <section class="card">
       <h2>General</h2>
       <label class="row">
@@ -47,10 +57,44 @@
       </label>
       <label class="row">
         <div>
-          <span class="row-title">Preferred model</span>
-          <p class="row-hint">Best-effort label. For guaranteed Haiku, set it as your default model in Claude.</p>
+          <span class="row-title">Model</span>
+          <p class="row-hint">Which Claude model the warmup message is sent to. Lowest is recommended — it's faster and uses the least usage.</p>
         </div>
-        <input type="text" id="model" placeholder="claude-haiku" />
+        <select id="model">
+          <option value="haiku">Haiku (lowest, recommended)</option>
+          <option value="sonnet">Sonnet</option>
+          <option value="opus">Opus (highest)</option>
+          <option value="auto">Don't change (use whatever is selected)</option>
+        </select>
+      </label>
+    </section>
+
+    <section class="card">
+      <h2>Reset timing</h2>
+      <p class="row-hint card-hint">
+        Controls when a new session is auto-started after your 5-hour window resets. The delay gives
+        you a window to start a session yourself first — the warmup only fires if you haven't.
+      </p>
+      <label class="row">
+        <div>
+          <span class="row-title">Delay after reset</span>
+          <p class="row-hint">Minutes to wait after the 5-hour window resets before checking and warming up. Chrome won't fire sooner than ~1 min, so use 2+ for the jitter to take effect.</p>
+        </div>
+        <div class="num-group">
+          <input type="number" id="postResetDelayMin" min="0" max="120" step="0.5" />
+          <span class="num-unit">min</span>
+        </div>
+      </label>
+      <label class="row">
+        <div>
+          <span class="row-title">Random jitter</span>
+          <p class="row-hint">Adds a random ± offset so the warmup never lands at the exact same time twice — sometimes a few seconds early, sometimes late. Set 0 to disable.</p>
+        </div>
+        <div class="num-group">
+          <span class="num-pm">±</span>
+          <input type="number" id="postResetJitterSec" min="0" max="600" step="1" />
+          <span class="num-unit">sec</span>
+        </div>
       </label>
     </section>
 
@@ -59,7 +103,7 @@
       <label class="row">
         <div>
           <span class="row-title">Skip warmups during quiet hours</span>
-          <p class="row-hint">Leave OFF if you want a fresh window ready when you wake up.</p>
+          <p class="row-hint">If on, no warmups inside the window. A warmup is scheduled the moment quiet hours end.</p>
         </div>
         <input type="checkbox" id="quietHoursEnabled" />
       </label>
@@ -76,7 +120,8 @@
     <section class="card">
       <h2>Advanced — DOM selectors</h2>
       <p class="row-hint card-hint">
-        Edit only if Claude's UI changes and the extension stops working. Right-click the chat input on claude.ai → Inspect → copy a CSS selector.
+        Edit only if Claude's UI changes and the extension stops working. Right-click the chat input
+        on claude.ai → Inspect → copy a CSS selector.
       </p>
       <label class="row">
         <span class="row-title">Input area selector</span>
@@ -87,9 +132,21 @@
         <input type="text" id="sel-send" />
       </label>
       <label class="row">
-        <span class="row-title">Model selector (reserved)</span>
+        <span class="row-title">Model picker selector</span>
         <input type="text" id="sel-model" />
       </label>
+    </section>
+
+    <section class="card">
+      <h2>Diagnostic logs</h2>
+      <p class="row-hint card-hint">
+        Last 200 lines of internal activity. Useful for troubleshooting. Stays on this device.
+      </p>
+      <pre id="log-view" class="log-view">Loading…</pre>
+      <div class="log-actions">
+        <button id="log-refresh" class="btn btn-ghost">Refresh logs</button>
+        <button id="log-clear" class="btn btn-ghost">Clear</button>
+      </div>
     </section>
 
     <div class="action-bar">
@@ -111,7 +168,7 @@
           <span class="meta">TOTAL WARMUPS</span>
         </div>
         <div class="version-block">
-          <span id="version-tag">v1.3</span>
+          <span id="version-tag">—</span>
           <span class="bullet">•</span>
           <span>LOCAL &amp; PRIVATE</span>
         </div>
